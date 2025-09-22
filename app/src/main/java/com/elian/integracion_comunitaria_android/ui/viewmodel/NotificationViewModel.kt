@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.elian.integracion_comunitaria_android.data.models.NotificationCreateRequest
 import com.elian.integracion_comunitaria_android.data.models.NotificationDTO
 import com.elian.integracion_comunitaria_android.data.remote.api.ApiClient
-import com.google.ai.client.generativeai.type.content
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch

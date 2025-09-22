@@ -104,7 +104,7 @@ fun HistoryItem(history: NotificationHistoryDTO) {
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            // ▼▼▼ CORREGIDO: Cambia 'eventType' por 'description' ▼▼▼
+            // ▼▼▼ CORREGIDO: Cambia 'eventType' por 'event' ▼▼▼
             Text(text = "Evento: ${history.event}", style = MaterialTheme.typography.titleMedium)
             Text(text = "Fecha: ${history.eventDate}", style = MaterialTheme.typography.bodySmall)
         }

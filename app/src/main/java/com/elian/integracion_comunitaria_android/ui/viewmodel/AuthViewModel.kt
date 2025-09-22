@@ -77,7 +77,4 @@ class AuthViewModel(private val sessionManager: UserSessionManager) : ViewModel(
         return sessionManager.getUserEmail()
     }
 
-    fun getUserId(): Int? {
-        return sessionManager.getUserId()
-    }
 }
