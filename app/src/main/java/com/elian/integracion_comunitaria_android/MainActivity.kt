@@ -95,6 +95,8 @@ fun AppNavigation(authViewModelFactory: AuthViewModelFactory) {
                 navController = navController,
                 viewModel = notificationViewModel
             )
+
+
         }
         composable(
             // Ruta más descriptiva
