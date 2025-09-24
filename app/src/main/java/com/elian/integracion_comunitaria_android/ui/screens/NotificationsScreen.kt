@@ -1,6 +1,9 @@
+// ruta: integracion_comunitaria_android/app/src/main/java/com/elian/integracion_comunitaria_android/ui/screens/NotificationsScreen.kt
+
 package com.elian.integracion_comunitaria_android.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable // <<< AÑADIDO
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,15 +58,17 @@ import com.elian.integracion_comunitaria_android.ui.viewmodel.NotificationViewMo
 @Composable
 fun NotificationItem(
     notification: NotificationDTO,
-    viewModel: NotificationViewModel
+    viewModel: NotificationViewModel,
+    onItemClick: () -> Unit // <<< AÑADIDO: Parámetro para manejar el clic
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 6.dp),
+            .padding(vertical = 6.dp)
+            .clickable { onItemClick() }, // <<< AÑADIDO: Hace que la tarjeta sea clicable
         shape = RoundedCornerShape(8.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (notification.viewed) CardBackground.copy(alpha = 0.4f) else CardBackground.copy(alpha = 0.7f) // Un poco más oscuro o diferente para destacar
+            containerColor = if (notification.viewed) CardBackground.copy(alpha = 0.4f) else CardBackground.copy(alpha = 0.7f)
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -121,10 +126,10 @@ fun NotificationsScreen(navController: NavController, viewModel: NotificationVie
     ) {
         Column(
             modifier = Modifier
-                .width(600.dp) // Ancho similar a DashboardScreen
+                .width(600.dp)
                 .clip(RoundedCornerShape(12.dp))
                 .background(CardBackground)
-                .padding(horizontal = 30.dp, vertical = 40.dp), // Ajuste de padding
+                .padding(horizontal = 30.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -169,16 +174,19 @@ fun NotificationsScreen(navController: NavController, viewModel: NotificationVie
             else {
                 LazyColumn(
                     state = listState,
-                    modifier = Modifier.fillMaxWidth().weight(1f) // Ocupa el espacio restante
+                    modifier = Modifier.fillMaxWidth().weight(1f)
                 ) {
                     items(notifications, key = { it.id }) { notification ->
                         NotificationItem(
                             notification = notification,
-                            viewModel = viewModel
+                            viewModel = viewModel,
+                            onItemClick = { // <<< AÑADIDO: Lógica de navegación
+                                navController.navigate("notification_history/${notification.id}")
+                            }
                         )
                     }
 
-                    if (isLoading && notifications.isNotEmpty()) { // Indicador de carga al final de la lista
+                    if (isLoading && notifications.isNotEmpty()) {
                         item {
                             Box(
                                 modifier = Modifier
@@ -192,24 +200,21 @@ fun NotificationsScreen(navController: NavController, viewModel: NotificationVie
                     }
                 }
             }
-            // Botón para volver al Dashboard (opcional, pero útil)
             Spacer(modifier = Modifier.height(16.dp))
             Button(
                 onClick = { navController.popBackStack() },
                 modifier = Modifier
-                    .fillMaxWidth(0.6f) // Más pequeño que los otros botones
+                    .fillMaxWidth(0.6f)
                     .height(45.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = AccentColor.copy(alpha = 0.8f)),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text("Volver al Dashboard", color = Color.White, fontSize = 16.sp)
             }
-
         }
     }
 
-    // Efecto para cargar más notificaciones al llegar al final
-    LaunchedEffect(listState, notifications, isLoading, viewModel.isLastPage) { // CORREGIDO
+    LaunchedEffect(listState, notifications, isLoading, viewModel.isLastPage) {
         val layoutInfo = listState.layoutInfo
         val totalItemsCount = layoutInfo.totalItemsCount
         val lastVisibleItemIndex = layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: -1
@@ -221,8 +226,3 @@ fun NotificationsScreen(navController: NavController, viewModel: NotificationVie
         }
     }
 }
-
-// Dummy isLastPage property in ViewModel for LaunchedEffect to compile
-// Add this to your actual NotificationViewModel:
-// val isLastPage: Boolean
-//    get() = _isLastPage // Assuming you have a private _isLastPage mutable state

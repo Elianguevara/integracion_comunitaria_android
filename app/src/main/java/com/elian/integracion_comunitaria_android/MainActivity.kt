@@ -1,3 +1,5 @@
+// ruta: integracion_comunitaria_android/app/src/main/java/com/elian/integracion_comunitaria_android/MainActivity.kt
+
 package com.elian.integracion_comunitaria_android
 
 import android.os.Bundle
@@ -18,7 +20,6 @@ import com.elian.integracion_comunitaria_android.ui.screens.*
 import com.elian.integracion_comunitaria_android.ui.theme.Integracion_comunitaria_androidTheme
 import com.elian.integracion_comunitaria_android.ui.viewmodel.AuthViewModel
 import com.elian.integracion_comunitaria_android.ui.viewmodel.AuthViewModelFactory
-import com.elian.integracion_comunitaria_android.ui.viewmodel.NotificationHistoryViewModel
 import com.elian.integracion_comunitaria_android.ui.viewmodel.NotificationViewModel
 
 class MainActivity : ComponentActivity() {
@@ -31,6 +32,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             Integracion_comunitaria_androidTheme {
+                // La factory del AuthViewModel se crea una sola vez
                 val authViewModelFactory = remember { AuthViewModelFactory(sessionManager) }
                 AppNavigation(authViewModelFactory = authViewModelFactory)
             }
@@ -41,12 +43,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun AppNavigation(authViewModelFactory: AuthViewModelFactory) {
     val navController = rememberNavController()
+    // El AuthViewModel se crea aquí porque se comparte entre login, register y dashboard
     val authViewModel: AuthViewModel = viewModel(factory = authViewModelFactory)
-    // Instanciamos los ViewModels para notificaciones
-
-    val notificationViewModel: NotificationViewModel = viewModel()
-    val notificationHistoryViewModel: NotificationHistoryViewModel = viewModel()
-
     val isAuthenticated = authViewModel.isAuthenticated.value
 
     NavHost(
@@ -56,9 +54,7 @@ fun AppNavigation(authViewModelFactory: AuthViewModelFactory) {
         composable("login") {
             LoginScreen(
                 onLoginSuccess = {
-                    navController.navigate("dashboard") {
-                        popUpTo("login") { inclusive = true }
-                    }
+                    navController.navigate("dashboard") { popUpTo("login") { inclusive = true } }
                 },
                 onRegisterClick = { navController.navigate("register") },
                 authViewModel = authViewModel
@@ -67,9 +63,7 @@ fun AppNavigation(authViewModelFactory: AuthViewModelFactory) {
         composable("register") {
             RegisterScreen(
                 onRegisterSuccess = {
-                    navController.navigate("login") {
-                        popUpTo("register") { inclusive = true }
-                    }
+                    navController.navigate("login") { popUpTo("register") { inclusive = true } }
                 },
                 authViewModel = authViewModel
             )
@@ -77,43 +71,44 @@ fun AppNavigation(authViewModelFactory: AuthViewModelFactory) {
         composable("dashboard") {
             DashboardScreen(
                 onNavigateToNotifications = { navController.navigate("notifications") },
-                // Asegúrate de añadir el onLogout aquí como te indiqué anteriormente
                 onLogout = {
                     authViewModel.logout()
                     navController.navigate("login") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
                     }
                 },
                 authViewModel = authViewModel
             )
         }
         composable("notifications") {
+            // El NotificationViewModel se crea aquí, solo cuando se necesita
+            val notificationViewModel: NotificationViewModel = viewModel()
             NotificationsScreen(
                 navController = navController,
                 viewModel = notificationViewModel
             )
         }
-        composable(
-            route = "history/{notificationId}",
-            arguments = listOf(navArgument("notificationId") { type = NavType.IntType })
-        ) { backStackEntry ->
-            val notificationId = backStackEntry.arguments?.getInt("notificationId") ?: 0
-            NotificationHistoryScreen(
-                notificationId = notificationId,
-                navController = navController,
-                viewModel = notificationHistoryViewModel
-            )
-        }
         composable("create_notification") {
+            // Reutilizamos el ViewModel de la pantalla anterior si es necesario, o creamos uno nuevo
+            val notificationViewModel: NotificationViewModel = viewModel()
             CreateNotificationScreen(
                 navController = navController,
                 viewModel = notificationViewModel
             )
         }
+        composable(
+            // Ruta más descriptiva
+            route = "notification_history/{notificationId}",
+            arguments = listOf(navArgument("notificationId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val notificationId = backStackEntry.arguments?.getInt("notificationId")
+
+            if (notificationId != null) {
+                // El NotificationHistoryViewModel y el NavController no se pasan como parámetro
+                // La pantalla los gestiona internamente
+                NotificationHistoryScreen(notificationId = notificationId,
+                    navController = navController)
+            }
+        }
     }
 }
-
-// ▼▼▼ ¡ASEGÚRATE DE BORRAR LA CLASE AuthViewModel DE AQUÍ! ▼▼▼
-// class AuthViewModel(...) { ... } // <- ¡ESTO ES LO QUE HAY QUE ELIMINAR!

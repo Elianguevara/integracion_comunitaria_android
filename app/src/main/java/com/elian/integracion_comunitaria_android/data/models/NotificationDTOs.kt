@@ -18,9 +18,9 @@ data class NotificationHistoryDTO(
     val id: Int,
     val notificationId: Int,
     val event: String,
-    val eventDate: LocalDateTime,
+    val eventDate: String,
     val userId: Int?,
-    val dateCreate: LocalDateTime
+    val dateCreate: String
 )
 
 data class NotificationCreateRequest(

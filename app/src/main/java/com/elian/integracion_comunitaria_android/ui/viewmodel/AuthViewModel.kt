@@ -25,7 +25,7 @@ class AuthViewModel(private val sessionManager: UserSessionManager) : ViewModel(
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                val response = ApiClient.authService.login(LoginRequest(email, password))
+                val response = ApiClient.authApi.login(LoginRequest(email, password))
 
                 if (response.isSuccessful) {
                     val token = response.body()?.token
@@ -51,7 +51,7 @@ class AuthViewModel(private val sessionManager: UserSessionManager) : ViewModel(
             _isLoading.value = true
             _errorMessage.value = null
             try {
-                val response = ApiClient.authService.register(RegisterRequest(name, lastName, email, password, "CUSTOMER"))
+                val response = ApiClient.authApi.register(RegisterRequest(name, lastName, email, password, "CUSTOMER"))
                 if (response.isSuccessful) {
                     onRegisterSuccess()
                 } else {

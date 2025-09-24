@@ -41,7 +41,7 @@ class NotificationViewModel : ViewModel() {
             _errorMessage.value = null // Limpia errores anteriores
             try {
                 Log.d("NotificationViewModel", "Attempting to load notifications. Current page: $currentPage")
-                val response = ApiClient.notificationService.getNotifications(currentPage,10)
+                val response = ApiClient.notificationApi.getNotifications(currentPage,10)
                 Log.d("NotificationViewModel", "Response received. Code: ${response.code()}")
 
                 if (response.isSuccessful) {
@@ -76,7 +76,7 @@ class NotificationViewModel : ViewModel() {
             _errorMessage.value = null
             try {
                 val request = NotificationCreateRequest(message)
-                val response = ApiClient.notificationService.createNotification(request)
+                val response = ApiClient.notificationApi.createNotification(request)
                 if (response.isSuccessful) {
                     // Refresca la lista para mostrar la nueva notificación al principio
                     refresh() // CORREGIDO: Llamar a refresh() en lugar de refreshNotifications()
@@ -94,7 +94,7 @@ class NotificationViewModel : ViewModel() {
     fun markAsViewed(notificationId: Int) {
         viewModelScope.launch {
             try {
-                val response = ApiClient.notificationService.markAsViewed(notificationId)
+                val response = ApiClient.notificationApi.markAsViewed(notificationId)
                 if (response.isSuccessful) {
                     // Actualiza el estado local sin recargar toda la lista
                     val updatedList = _notifications.value.map {
@@ -114,7 +114,7 @@ class NotificationViewModel : ViewModel() {
     fun deleteNotification(notificationId: Int) {
         viewModelScope.launch {
             try {
-                val response = ApiClient.notificationService.deleteNotification(notificationId)
+                val response = ApiClient.notificationApi.deleteNotification(notificationId)
                 if (response.isSuccessful) {
                     // Elimina el elemento de la lista localmente
                     _notifications.value = _notifications.value.filterNot { it.id == notificationId }

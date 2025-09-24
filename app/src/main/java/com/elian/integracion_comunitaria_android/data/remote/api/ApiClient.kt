@@ -1,3 +1,5 @@
+// ruta: integracion_comunitaria_android/app/src/main/java/com/elian/integracion_comunitaria_android/data/remote/api/ApiClient.kt
+
 package com.elian.integracion_comunitaria_android.data.remote.api
 
 import com.elian.integracion_comunitaria_android.data.UserSessionManager
@@ -11,14 +13,12 @@ object ApiClient {
     private lateinit var retrofit: Retrofit
     private lateinit var sessionManager: UserSessionManager
 
-    val authService: AuthApi by lazy {
+    val authApi: AuthApi by lazy {
         retrofit.create(AuthApi::class.java)
     }
 
-    // ▼▼▼ ESTA ES LA LÍNEA QUE HAY QUE CORREGIR ▼▼▼
-    // Antes: val notificationService: NotificationApi by lazy { ... }
-    // Después:
-    val notificationService: NotificationApi by lazy {
+    // ▼▼▼ CORRECCIÓN DE NOMBRE PARA CONSISTENCIA ▼▼▼
+    val notificationApi: NotificationApi by lazy {
         retrofit.create(NotificationApi::class.java)
     }
 
